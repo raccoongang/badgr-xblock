@@ -2,7 +2,7 @@
 function BadgrXBlock(runtime, element, data) {
 
     var user = data.user
-    var my_url = '/api/grades/v0/course_grade/' + data.course_id + '/users/?username=' + user
+    var my_url = '/api/grades/v0/course_grade/' + data.course_id + '/users/?username=' + user;
     var section_title = data.section_title;
     var pass_mark = data.pass_mark;
     var award_message = data.award_message;
@@ -14,7 +14,7 @@ function BadgrXBlock(runtime, element, data) {
 
 
     function getGrades(data) {
-        var section_scores = data['section_scores'];
+        var section_scores = data[0]['section_scores'];
         // Check that the section name specified in Xblock exists in Grades report
         if (section_scores.hasOwnProperty(section_title)) {
             var this_section = section_scores[String(section_title)];

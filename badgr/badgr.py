@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 loader = ResourceLoader(__name__)
 
 
-@XBlock.needs('settings')
+@XBlock.wants('settings')
 @XBlock.wants('badging')
 @XBlock.wants('user')
 class BadgrXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
@@ -38,7 +38,7 @@ class BadgrXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         display_name="Issuer name",
         help="must be lower case unique name.",
         scope=Scope.settings,
-        default=u"proversity"
+        default=settings.BADGR_ISSUER_SLUG
     )
 
     badge_slug = String(
@@ -147,7 +147,6 @@ class BadgrXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         'display_name',
         'description',
         'criteria',
-        'issuer_slug',
         'badge_slug',
         'badge_name', 
         'pass_mark',
@@ -165,29 +164,19 @@ class BadgrXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
     def api_token(self):
         """
         Returns the Badgr Server API token from Settings Service.
-        The API key should be set in both lms/cms env.json files inside XBLOCK_SETTINGS.
-        Example:
-            "XBLOCK_SETTINGS": {
-                "BadgrXBlock": {
-                    "BADGR_API_TOKEN": "YOUR API KEY GOES HERE"
-                }
-            },
+        The API key should be set in both lms/cms env.json files.
+        Example: BADGR_API_TOKEN = "YOUR API KEY GOES HERE"
         """
-        return self.get_xblock_settings().get('BADGR_API_TOKEN', '')
+        return settings.BADGR_API_TOKEN
 
     @property
     def api_url(self):
         """
         Returns the URL of the Badgr Server from the Settings Service.
-        The URL hould be set in both lms/cms env.json files inside XBLOCK_SETTINGS.
-        Example:
-            "XBLOCK_SETTINGS": {
-                "BadgrXBlock": {
-                    "BADGR_BASE_URL": "YOUR URL  GOES HERE"
-                }
-            },
+        The URL should be set in both lms/cms env.json files.
+        Example: BADGR_BASE_URL = "YOUR URL GOES HERE"
         """
-        return self.get_xblock_settings().get('BADGR_BASE_URL' '')
+        return settings.BADGR_BASE_URL
 
     def get_list_of_issuers(self):
         """
@@ -210,7 +199,9 @@ class BadgrXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         """
         badge_service = self.runtime.service(self, 'badging')
         badge_class = badge_service.get_badge_class(
-           slug=self.badge_slug, issuing_component=self.issuer_slug,
+            slug=self.badge_slug,
+            issuing_component=self.issuer_slug,
+            slug_badgr=self.badge_slug,
             course_id=self.runtime.course_id,
             display_name=self.badge_name,
             description=self.description,
